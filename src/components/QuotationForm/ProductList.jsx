@@ -11,7 +11,8 @@ export const ProductList = ({ fields, register, remove, onAddProduct }) => {
       price: '',
       stock: '',
       image_url: '',
-      availability: true,
+      available: true,
+      is_active: true,
       rating: ''
     });
     
@@ -20,11 +21,7 @@ export const ProductList = ({ fields, register, remove, onAddProduct }) => {
         try {
           const response = await fetch('https://techknow-backend.onrender.com/products');
           const data = await response.json();
-          if (Array.isArray(data)) {
-            setProducts(data);
-          } else {
-            setProducts([]);
-          }
+          setProducts(data?.products || []);
         } catch (error) {
           console.error('Error fetching products:', error);
           setProducts([]);
@@ -37,15 +34,23 @@ export const ProductList = ({ fields, register, remove, onAddProduct }) => {
     const handleNewProductSubmit = async (e) => {
       e.preventDefault();
       try {
+        const formData = new FormData();
+        Object.entries(newProduct).forEach(([key, value]) => {
+          formData.append(key === 'image_url' ? 'image' : key, value);
+        });
+
         const response = await fetch('https://techknow-backend.onrender.com/products', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newProduct),
+          body: formData,
         });
-        const data = await response.json();
-        setProducts([...products, data]);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+        }
+
+        const { product } = await response.json();
+        setProducts(prev => [...prev, product]);
         setShowNewProductForm(false);
         setNewProduct({
           name: '',
@@ -53,12 +58,18 @@ export const ProductList = ({ fields, register, remove, onAddProduct }) => {
           price: '',
           stock: '',
           image_url: '',
-          availability: true,
+          available: true,
+          is_active: true,
           rating: ''
         });
       } catch (error) {
         console.error('Error creating product:', error);
       }
+    };
+
+    const handleInputChange = (e, field) => {
+      const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+      setNewProduct(prev => ({ ...prev, [field]: value }));
     };
     
     return (
@@ -71,7 +82,7 @@ export const ProductList = ({ fields, register, remove, onAddProduct }) => {
               className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select Product</option>
-              {Array.isArray(products) && products.map(product => (
+              {products.map(product => (
                 <option key={product.id} value={product.id}>
                   {product.name} - ${product.price}
                 </option>
@@ -124,14 +135,14 @@ export const ProductList = ({ fields, register, remove, onAddProduct }) => {
               type="text"
               placeholder="Product Name"
               value={newProduct.name}
-              onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+              onChange={(e) => handleInputChange(e, 'name')}
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
               required
             />
             <textarea
               placeholder="Description"
               value={newProduct.description}
-              onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+              onChange={(e) => handleInputChange(e, 'description')}
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
               required
             />
@@ -140,7 +151,7 @@ export const ProductList = ({ fields, register, remove, onAddProduct }) => {
               step="0.01"
               placeholder="Price"
               value={newProduct.price}
-              onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+              onChange={(e) => handleInputChange(e, 'price')}
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
               required
             />
@@ -148,27 +159,35 @@ export const ProductList = ({ fields, register, remove, onAddProduct }) => {
               type="number"
               placeholder="Stock"
               value={newProduct.stock}
-              onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
+              onChange={(e) => handleInputChange(e, 'stock')}
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
               required
             />
             <input
-              type="url"
-              placeholder="Image URL"
-              value={newProduct.image_url}
-              onChange={(e) => setNewProduct({...newProduct, image_url: e.target.value})}
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleInputChange(e, 'image_url')}
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
               required
             />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               <label>
                 <input
                   type="checkbox"
-                  checked={newProduct.availability}
-                  onChange={(e) => setNewProduct({...newProduct, availability: e.target.checked})}
+                  checked={newProduct.available}
+                  onChange={(e) => handleInputChange(e, 'available')}
                   className="mr-2"
                 />
                 Available
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={newProduct.is_active}
+                  onChange={(e) => handleInputChange(e, 'is_active')}
+                  className="mr-2"
+                />
+                Active
               </label>
             </div>
             <input
@@ -178,7 +197,7 @@ export const ProductList = ({ fields, register, remove, onAddProduct }) => {
               max="5"
               placeholder="Rating (0-5)"
               value={newProduct.rating}
-              onChange={(e) => setNewProduct({...newProduct, rating: e.target.value})}
+              onChange={(e) => handleInputChange(e, 'rating')}
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
               required
             />
