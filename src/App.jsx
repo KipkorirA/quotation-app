@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import QuotationList from './components/QuotationList';
 import QuotationForm from './components/QuotationForm/QuotationForm';
-import EmailForm from './components/EmailForm';
+// import EmailForm from './components/EmailForm';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 
@@ -31,12 +31,12 @@ const App = () => {
             >
               New Quotation
             </Link>
-            <Link 
+            {/* <Link 
               to="/email" 
               className="px-4 py-2 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 rounded-lg hover:bg-blue-50"
             >
               Email
-            </Link>
+            </Link> */}
           </nav>
           <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
             <Routes>
@@ -50,7 +50,7 @@ const App = () => {
                   />
                 } 
               />
-              <Route path="/email" element={<EmailForm />} />
+              {/* <Route path="/email" element={<EmailForm />} /> */}
             </Routes>
             <ToastContainer />
           </div>

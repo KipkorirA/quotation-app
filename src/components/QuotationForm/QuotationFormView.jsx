@@ -159,7 +159,7 @@ export const QuotationFormView = ({
             </h2>
             
             <div className="space-y-4">
-              <FormField
+              {/* <FormField
                 label="Customer"
                 type="select"
                 name="selectedCustomerId"
@@ -185,7 +185,7 @@ export const QuotationFormView = ({
                     label: project.name
                   }))
                 ]}
-              />
+              /> */}
 
               <div className="form-field">
                 <label htmlFor="customer_name">Customer Name</label>
