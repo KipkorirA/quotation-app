@@ -87,10 +87,10 @@ const QuotationForm = ({ currentQuotation, onSave }) => {
   };
 
   const handleReview = (data) => {
-    if (!data.items || data.items.length === 0) {
-      toast.error('Please add at least one item');
-      return;
-    }
+    // if (!data.items || data.items.length === 0) {
+    //   toast.error('Please add at least one item');
+    //   return;
+    // }
 
     if (!data.customer_name?.trim()) {
       toast.error('Please enter a customer name');
