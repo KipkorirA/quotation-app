@@ -10,7 +10,7 @@ export const QuotationFormView = ({
   handleSubmit,
   onSubmit,
   customers,
-  projects = [],
+  // projects = [],
   selectedCustomerId,
   currentQuotation,
   customerOrders = [],
@@ -52,9 +52,9 @@ export const QuotationFormView = ({
     });
   };
 
-  const projectOptions = projects && typeof projects === 'object' && !Array.isArray(projects) 
-    ? Object.values(projects) 
-    : (Array.isArray(projects) ? projects : []);
+  // const projectOptions = projects && typeof projects === 'object' && !Array.isArray(projects) 
+  //   ? Object.values(projects) 
+  //   : (Array.isArray(projects) ? projects : []);
 
   const handleReview = (data) => {
     const formattedData = {
