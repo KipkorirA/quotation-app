@@ -3,14 +3,13 @@ import PropTypes from 'prop-types';
 import { CustomerList } from './CustomerList';
 import { NewCustomerModal } from './NewCustomerModal';
 import { FormField } from './FormField';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 export const QuotationFormView = ({
   register,
   handleSubmit,
   onSubmit,
   customers,
-  // projects = [],
   selectedCustomerId,
   currentQuotation,
   customerOrders = [],
@@ -24,39 +23,36 @@ export const QuotationFormView = ({
 }) => {
   const [showReview, setShowReview] = useState(false);
   const [formData, setFormData] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCustomerSelect = (customerId) => {
+  const handleCustomerSelect = useCallback((customerId) => {
     setValue("selectedCustomerId", customerId);
     const customerSelect = document.querySelector('select[name="customer_id"]');
     if (customerSelect) {
       customerSelect.value = customerId;
       customerSelect.dispatchEvent(new Event('change', { bubbles: true }));
     }
-  };
+  }, [setValue]);
 
-  const handleProjectSelect = (projectId) => {
+  const handleProjectSelect = useCallback((projectId) => {
     setValue("selectedProjectId", projectId);
     const projectSelect = document.querySelector('select[name="project_id"]');
     if (projectSelect) {
       projectSelect.value = projectId;
       projectSelect.dispatchEvent(new Event('change', { bubbles: true }));
     }
-  };
+  }, [setValue]);
 
-  const handleOrderSelect = (order) => {
+  const handleOrderSelect = useCallback((order) => {
     append({ 
       item_name: order.product_name,
       quantity: 1,
       unit_price: order.price,
       product_id: order.product_id 
     });
-  };
+  }, [append]);
 
-  // const projectOptions = projects && typeof projects === 'object' && !Array.isArray(projects) 
-  //   ? Object.values(projects) 
-  //   : (Array.isArray(projects) ? projects : []);
-
-  const handleReview = (data) => {
+  const handleReview = useCallback((data) => {
     const formattedData = {
       ...data,
       customer_id: data.selectedCustomerId || null,
@@ -75,13 +71,13 @@ export const QuotationFormView = ({
     };
     setFormData(formattedData);
     setShowReview(true);
-  };
+  }, []);
 
   const handleFormSubmit = async () => {
+    if (isSubmitting) return;
+    
     try {
-      console.log("Form data:", formData);
-      
-      console.log('Sending request to create quotation...');
+      setIsSubmitting(true);
       const response = await fetch('https://techknow-backend.onrender.com/quotations', {
         method: 'POST',
         headers: {
@@ -101,16 +97,11 @@ export const QuotationFormView = ({
       onSubmit(result);
       setShowReview(false);
       reset();
-      while (fields.length > 0) {
-        remove(0);
-      }
+      fields.forEach((_, index) => remove(index));
     } catch (error) {
       console.error('Error creating quotation:', error);
-      console.error('Error details:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -138,13 +129,17 @@ export const QuotationFormView = ({
             <div className="flex space-x-4">
               <button
                 onClick={handleFormSubmit}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                disabled={isSubmitting}
+                className={`${
+                  isSubmitting ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'
+                } text-white px-4 py-2 rounded transition duration-200`}
               >
-                Confirm and Submit
+                {isSubmitting ? 'Submitting...' : 'Confirm and Submit'}
               </button>
               <button
                 onClick={() => setShowReview(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                disabled={isSubmitting}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition duration-200"
               >
                 Back to Edit
               </button>
@@ -159,41 +154,15 @@ export const QuotationFormView = ({
             </h2>
             
             <div className="space-y-4">
-              {/* <FormField
-                label="Customer"
-                type="select"
-                name="selectedCustomerId"
-                register={register}
-                options={[
-                  { value: "", label: "Select Customer" },
-                  ...customers.map(customer => ({
-                    value: String(customer.id),
-                    label: customer.name
-                  }))
-                ]}
-              />
-
-              <FormField
-                label="Project"
-                type="select"
-                name="selectedProjectId"
-                register={register}
-                options={[
-                  { value: "", label: "Select Project" },
-                  ...projectOptions.map(project => ({
-                    value: String(project.id),
-                    label: project.name
-                  }))
-                ]}
-              /> */}
-
               <div className="form-field">
-                <label htmlFor="customer_name">Customer Name</label>
+                <label htmlFor="customer_name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Customer Name
+                </label>
                 <input
                   id="customer_name"
                   type="text"
                   {...register("customer_name")}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               
@@ -239,7 +208,7 @@ export const QuotationFormView = ({
                     <button
                       type="button"
                       onClick={() => remove(index)}
-                      className="bg-red-500 text-white px-3 py-1 rounded"
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition duration-200"
                     >
                       Remove Item
                     </button>
@@ -248,7 +217,7 @@ export const QuotationFormView = ({
                 <button
                   type="button"
                   onClick={() => append({ item_name: '', quantity: 1, unit_price: 0 })}
-                  className="bg-green-500 text-white px-4 py-2 rounded mt-4"
+                  className="bg-green-500 text-white px-4 py-2 rounded mt-4 hover:bg-green-600 transition duration-200"
                 >
                   Add Item
                 </button>
@@ -305,7 +274,7 @@ export const QuotationFormView = ({
 
               <button 
                 type="submit"
-                className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+                className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 Review Details
               </button>
@@ -341,6 +310,6 @@ QuotationFormView.propTypes = {
   handleNewCustomerSubmit: PropTypes.func,
   fields: PropTypes.array,
   remove: PropTypes.func,
-  setValue: PropTypes.func,
-  reset: PropTypes.func,
+  setValue: PropTypes.func.isRequired,
+  reset: PropTypes.func.isRequired,
 };
