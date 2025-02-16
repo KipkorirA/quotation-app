@@ -5,6 +5,7 @@ import QuotationForm from './components/QuotationForm/QuotationForm';
 // import EmailForm from './components/EmailForm';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import InvoiceList from './components/invoice/InvoiceList';
 
 const App = () => {
   const [currentQuotation, setCurrentQuotation] = useState(null);
@@ -31,12 +32,12 @@ const App = () => {
             >
               New Quotation
             </Link>
-            {/* <Link 
-              to="/email" 
+            <Link 
+              to="/invoice" 
               className="px-4 py-2 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 rounded-lg hover:bg-blue-50"
             >
-              Email
-            </Link> */}
+              Invoice
+            </Link>
           </nav>
           <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
             <Routes>
@@ -50,7 +51,7 @@ const App = () => {
                   />
                 } 
               />
-              {/* <Route path="/email" element={<EmailForm />} /> */}
+              <Route path="/invoice" element={<InvoiceList />} />
             </Routes>
             <ToastContainer />
           </div>
