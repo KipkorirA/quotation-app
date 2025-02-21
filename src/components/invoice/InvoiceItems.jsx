@@ -1,7 +1,7 @@
 // InvoiceItems.jsx
 import PropTypes from 'prop-types';
 
-const InvoiceItems = ({ items = [], onChange }) => {
+export const InvoiceItems = ({ items = [], onChange }) => {
   const addItem = () => {
     onChange([...items, { description: '', quantity: 1, unit_price: 0, amount: 0 }]);
   };
@@ -11,7 +11,7 @@ const InvoiceItems = ({ items = [], onChange }) => {
     const updatedItem = { ...newItems[index], [field]: value };
     
     // Calculate amount whenever quantity or unit_price changes
-    updatedItem.amount = updatedItem.quantity * updatedItem.unit_price;
+    updatedItem.amount = Number(updatedItem.quantity) * Number(updatedItem.unit_price);
     newItems[index] = updatedItem;
     
     onChange(newItems);
@@ -51,8 +51,8 @@ const InvoiceItems = ({ items = [], onChange }) => {
             type="number"
             min="1"
             placeholder="Enter quantity"
-            value={item.quantity}
-            onChange={e => updateItem(index, 'quantity', parseInt(e.target.value) || 0)}
+            value={isNaN(item.quantity) ? 0 : item.quantity}
+            onChange={e => updateItem(index, 'quantity', Number(e.target.value) || 0)}
             className="border p-2 rounded w-20 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
           <input
@@ -60,12 +60,12 @@ const InvoiceItems = ({ items = [], onChange }) => {
             step="0.01"
             min="0"
             placeholder="Enter unit price"
-            value={item.unit_price}
-            onChange={e => updateItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
+            value={isNaN(item.unit_price) ? 0 : item.unit_price}
+            onChange={e => updateItem(index, 'unit_price', Number(e.target.value) || 0)}
             className="border p-2 rounded w-24 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
           <div className="w-24 text-right pr-2">
-            ${(item.amount || 0).toFixed(2)}
+            Ksh.{(isNaN(item.amount) ? 0 : item.amount).toFixed(2)}
           </div>
           <button
             type="button"

@@ -17,8 +17,12 @@ const InvoiceForm = ({ invoice, onSubmit, onCancel }) => {
     e.preventDefault();
     
     try {
-      const url = invoice ? `https://techknow-backend.onrender.com/invoices/${invoice.id}` : 'https://techknow-backend.onrender.com/invoices';
+      console.log('Starting invoice submission...', { formData });
+      
+      const url = invoice ? `http://127.0.0.1:5000/invoices/${invoice.id}` : 'http://127.0.0.1:5000/invoices';
       const method = invoice ? 'PUT' : 'POST';
+      
+      console.log('Sending request to:', url, 'with method:', method);
       
       const response = await fetch(url, {
         method,
@@ -26,13 +30,24 @@ const InvoiceForm = ({ invoice, onSubmit, onCancel }) => {
         body: JSON.stringify(formData)
       });
       
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('Failed to save invoice');
+        const errorData = await response.json().catch(() => null);
+        console.error('Server error details:', errorData);
+        throw new Error(`Failed to save invoice: ${response.status} ${response.statusText}`);
       }
+      
+      const savedData = await response.json();
+      console.log('Invoice saved successfully:', savedData);
       
       onSubmit();
     } catch (error) {
-      console.error('Error saving invoice:', error);
+      console.error('Error saving invoice:', {
+        message: error.message,
+        stack: error.stack,
+        formData
+      });
     }
   };
 
