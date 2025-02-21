@@ -1,6 +1,5 @@
 // QuotationList.jsx
 import { useEffect, useState, useCallback } from 'react';
-import PropTypes from 'prop-types';
 import { fetchQuotations} from '../api';
 import { toast } from 'react-toastify';
 import CustomerInformation from './quotation/CustomerInformation';
@@ -87,12 +86,10 @@ const QuotationList = () => {
   useEffect(() => {
     let result = [...quotations];
 
-    // Apply status filter
     if (statusFilter !== 'all') {
       result = result.filter(q => q.status === statusFilter);
     }
 
-    // Apply search
     if (searchTerm) {
       result = result.filter(q => 
         q.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -101,7 +98,6 @@ const QuotationList = () => {
       );
     }
 
-    // Apply sorting
     result.sort((a, b) => {
       let comparison = 0;
       switch (sortBy) {
@@ -128,31 +124,31 @@ const QuotationList = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-extrabold text-gray-900">Quotation List</h2>
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-0">Quotation List</h2>
         <button
           onClick={loadQuotations}
-          className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
+          className="w-full sm:w-auto inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
         >
           Refresh
         </button>
       </div>
 
-      <div className="mb-6 space-y-4">
-        <div className="flex flex-wrap gap-4">
+      <div className="mb-4 sm:mb-6 space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
             placeholder="Search quotations..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-auto px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-auto px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -164,7 +160,7 @@ const QuotationList = () => {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-auto px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="date">Sort by Date</option>
             <option value="name">Sort by Name</option>
@@ -173,7 +169,7 @@ const QuotationList = () => {
 
           <button
             onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            className="px-4 py-2 border rounded-md bg-gray-100 hover:bg-gray-200"
+            className="w-full sm:w-auto px-3 py-2 text-sm border rounded-md bg-gray-100 hover:bg-gray-200"
           >
             {sortOrder === 'asc' ? '↑' : '↓'}
           </button>
@@ -181,35 +177,35 @@ const QuotationList = () => {
       </div>
 
       {filteredQuotations.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-xl text-gray-500">No quotations found</p>
+        <div className="text-center py-8">
+          <p className="text-base sm:text-lg text-gray-500">No quotations found</p>
         </div>
       ) : (
-        <ul className="space-y-6">
+        <ul className="space-y-4 sm:space-y-6">
           {filteredQuotations.map((q) => (
-            <li key={q.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 overflow-hidden">
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="flex flex-col">
-                    <span className="text-2xl font-bold text-gray-900 mb-2">
+            <li key={q.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden">
+              <div className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start mb-4 sm:mb-6">
+                  <div className="flex flex-col mb-3 sm:mb-0">
+                    <span className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
                       Account: {q.customer_name}
                     </span>
-                    <span className="text-gray-600">ID: {q.id}</span>
-                    <span className="text-gray-600">Description: {q.description}</span>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mt-2">
+                    <span className="text-sm text-gray-600">ID: {q.id}</span>
+                    <span className="text-sm text-gray-600">Description: {q.description}</span>
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-2">
                       Status: {q.status}
                     </span>
                   </div>
-                  <div className="flex space-x-3">
+                  <div className="w-full sm:w-auto">
                     <button
                       onClick={() => handleSendEmail(q)}
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
+                      className="w-full sm:w-auto inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
                     >
                       Download PDF
                     </button>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-4 sm:gap-6">
                   <CustomerInformation quotation={q} />
                   <FinancialDetails quotation={q} />
                 </div>
