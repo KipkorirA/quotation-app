@@ -57,13 +57,15 @@ const InvoiceCard = memo(({ invoice, onUpdate }) => {
   }, []);
 
   return (
-    <div className="border-2 rounded-xl p-3 sm:p-4 lg:p-8 shadow-2xl bg-white hover:shadow-3xl transition-all duration-300 hover:scale-[1.02] max-w-6xl mx-auto">
+    <div className="border-2 rounded-xl p-3 sm:p-4 lg:p-8 shadow-2xl bg-white hover:shadow-3xl transition-all duration-300 hover:scale-[1.02] max-w-6xl mx-auto relative">
       {showEdit ? (
-        <InvoiceForm
-          invoice={invoice}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-        />
+        <div className="absolute inset-0 z-50">
+          <InvoiceForm
+            invoice={invoice}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+          />
+        </div>
       ) : (
         <>
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 sm:mb-8">

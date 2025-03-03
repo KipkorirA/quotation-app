@@ -63,11 +63,21 @@ const InvoiceForm = ({ invoice, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-gray-900 to-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-100">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-800 border-b pb-4">
-          {invoice ? '✏️ Edit Invoice' : '📝 Create Invoice'}
-        </h2>
+    <div className="fixed inset-0 bg-gradient-to-br from-gray-900 to-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-[99999]">
+      <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-100 relative">
+        <button
+          onClick={onCancel}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition-all duration-200 hover:bg-gray-200"
+          aria-label="Close form"
+        >
+          ×
+        </button>
+
+        <div className="flex justify-between items-center mb-6 border-b pb-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
+            {invoice ? '✏️ Edit Invoice' : '📝 Create Invoice'}
+          </h2>
+        </div>
         
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
