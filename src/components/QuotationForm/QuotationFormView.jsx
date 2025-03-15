@@ -11,7 +11,7 @@ export const QuotationFormView = ({
   append = () => {},
   fields = [],
   remove = () => {},
-  reset
+  reset = () => {}
 }) => {
   const [showReview, setShowReview] = useState(false);
   const [formData, setFormData] = useState(null);
@@ -25,11 +25,11 @@ export const QuotationFormView = ({
       customer_name: data.customer_name?.trim(),
       customer_email: data.customer_email?.trim(),
       customer_phone: data.customer_phone?.trim(),
-      items: data.items.map(item => ({
+      items: Array.isArray(data.items) ? data.items.map(item => ({
         ...item,
         quantity: Number(item.quantity),
         unit_price: Number(item.unit_price)
-      })),
+      })) : [],
       tax_rate: Number(data.tax_rate),
       discount: Number(data.discount),
       validity_period: Number(data.validity_period)
@@ -41,9 +41,13 @@ export const QuotationFormView = ({
   const handleFormSubmit = async () => {
     if (isSubmitting) return;
     
+    setIsSubmitting(true);
+    setShowReview(false);
+    reset();
+    fields.forEach((_, index) => remove(index));
+
     try {
-      setIsSubmitting(true);
-      const response = await fetch('https://techknow-backend.onrender.com/quotations/', {
+      fetch('https://techknow-backend.onrender.com/quotations/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,21 +55,24 @@ export const QuotationFormView = ({
         },
         credentials: 'include',
         body: JSON.stringify(formData)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to create quotation');
+        }
+        return response.json();
+      })
+      .then(result => {
+        onSubmit(result);
+      })
+      .catch(error => {
+        console.error('Error creating quotation:', error);
+      })
+      .finally(() => {
+        setIsSubmitting(false);
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || errorData.message || 'Failed to create quotation');
-      }
-      
-      const result = await response.json();
-      onSubmit(result);
-      setShowReview(false);
-      reset();
-      fields.forEach((_, index) => remove(index));
     } catch (error) {
       console.error('Error creating quotation:', error);
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -254,5 +261,5 @@ QuotationFormView.propTypes = {
   append: PropTypes.func,
   fields: PropTypes.array,
   remove: PropTypes.func,
-  reset: PropTypes.func.isRequired,
+  reset: PropTypes.func
 };

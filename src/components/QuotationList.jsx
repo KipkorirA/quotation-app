@@ -1,6 +1,6 @@
 // QuotationList.jsx
 import { useEffect, useState, useCallback } from 'react';
-import { fetchQuotations} from '../api';
+import { fetchQuotations, fetchQuotationById, api, deleteQuotation } from '../api';
 import { toast } from 'react-toastify';
 import CustomerInformation from './quotation/CustomerInformation';
 import FinancialDetails from './quotation/FinancialDetails';
@@ -25,13 +25,8 @@ const QuotationList = () => {
       setQuotations(response.data);
       setFilteredQuotations(response.data);
       try {
-        const itemsResponse = await fetch('https://techknow-backend.onrender.com/quotations/quotationitems');
-        if (itemsResponse.ok) {
-          const items = await itemsResponse.json();
-          setQuotationItems(Array.isArray(items) ? items : []);
-        } else {
-          setQuotationItems([]);
-        }
+        const itemsResponse = await fetchQuotationById();
+        setQuotationItems(Array.isArray(itemsResponse.data) ? itemsResponse.data : []);
       } catch (itemsError) {
         console.error('Failed to load quotation items:', itemsError);
         setQuotationItems([]);
@@ -51,19 +46,11 @@ const QuotationList = () => {
     }
 
     try {
-      const response = await fetch(`https://techknow-backend.onrender.com/quotations/${quotation.id}/download`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
+      const response = await api.get(`/quotations/${quotation.id}/download`, {
+        responseType: 'blob'
       });
       
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to download quotation');
-      }
-
-      const blob = await response.blob();
+      const blob = response.data;
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -82,23 +69,27 @@ const QuotationList = () => {
 
   const handleDelete = async (quotationId) => {
     try {
-      const response = await fetch(`https://techknow-backend.onrender.com/quotations/${quotationId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete quotation');
-      }
-
+      console.log(`Attempting to delete quotation with ID: ${quotationId}`);
+      console.log('Current quotations before deletion:', quotations);
+      
+      await deleteQuotation(Number(quotationId));
+      console.log(`Successfully deleted quotation with ID: ${quotationId}`);
+      
       toast.success('Quotation deleted successfully');
-      loadQuotations();
+      console.log('Reloading quotations after successful deletion');
+      
+      await loadQuotations();
+      console.log('Quotations reloaded successfully');
+      console.log('Current quotations after deletion:', quotations);
     } catch (error) {
+      console.error('Delete operation failed with error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      });
       toast.error(error.message || 'Failed to delete quotation');
-      console.error(error);
     }
   };
 
@@ -219,7 +210,6 @@ const QuotationList = () => {
                       Status: {q.status}
                     </span>
                   </div>
-
                   <div className="w-full sm:w-auto flex gap-2">
                     <button
                       onClick={() => handleSendEmail(q)}
