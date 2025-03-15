@@ -1,7 +1,5 @@
 // src/components/QuotationForm/QuotationFormView.jsx
 import PropTypes from 'prop-types';
-import { CustomerList } from './CustomerList';
-import { NewCustomerModal } from './NewCustomerModal';
 import { FormField } from './FormField';
 import { useState, useCallback } from 'react';
 
@@ -9,48 +7,15 @@ export const QuotationFormView = ({
   register,
   handleSubmit,
   onSubmit,
-  customers,
-  selectedCustomerId,
   currentQuotation,
-  customerOrders = [],
-  customerProjects = [],
   append = () => {},
-  handleNewCustomerSubmit = () => {},
   fields = [],
   remove = () => {},
-  setValue,
   reset
 }) => {
   const [showReview, setShowReview] = useState(false);
   const [formData, setFormData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleCustomerSelect = useCallback((customerId) => {
-    setValue("selectedCustomerId", customerId);
-    const customerSelect = document.querySelector('select[name="customer_id"]');
-    if (customerSelect) {
-      customerSelect.value = customerId;
-      customerSelect.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  }, [setValue]);
-
-  const handleProjectSelect = useCallback((projectId) => {
-    setValue("selectedProjectId", projectId);
-    const projectSelect = document.querySelector('select[name="project_id"]');
-    if (projectSelect) {
-      projectSelect.value = projectId;
-      projectSelect.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  }, [setValue]);
-
-  const handleOrderSelect = useCallback((order) => {
-    append({ 
-      item_name: order.product_name,
-      quantity: 1,
-      unit_price: order.price,
-      product_id: order.product_id 
-    });
-  }, [append]);
 
   const handleReview = useCallback((data) => {
     const formattedData = {
@@ -78,7 +43,7 @@ export const QuotationFormView = ({
     
     try {
       setIsSubmitting(true);
-      const response = await fetch('https://techknow-backend.onrender.com/quotations', {
+      const response = await fetch('https://techknow-backend.onrender.com/quotations/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,18 +72,6 @@ export const QuotationFormView = ({
 
   return (
     <div className="space-y-4 p-4 sm:p-6 max-w-4xl mx-auto text-base sm:text-lg">
-      <CustomerList
-        customers={customers}
-        selectedCustomerId={selectedCustomerId}
-        customerOrders={customerOrders}
-        customerProjects={customerProjects}
-        onCustomerSelect={handleCustomerSelect}
-        onOrderSelect={handleOrderSelect}
-        onProjectSelect={handleProjectSelect}
-      />
-      
-      <NewCustomerModal onSubmit={handleNewCustomerSubmit} />
-
       {showReview ? (
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Review Quotation Details</h2>
@@ -290,11 +243,6 @@ QuotationFormView.propTypes = {
   register: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  customers: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    name: PropTypes.string.isRequired,
-    email: PropTypes.string.isRequired,
-  })).isRequired,
   projects: PropTypes.oneOfType([
     PropTypes.object,
     PropTypes.arrayOf(PropTypes.shape({
@@ -302,14 +250,9 @@ QuotationFormView.propTypes = {
       name: PropTypes.string.isRequired,
     }))
   ]),
-  selectedCustomerId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   currentQuotation: PropTypes.object,
-  customerOrders: PropTypes.array,
-  customerProjects: PropTypes.array,
   append: PropTypes.func,
-  handleNewCustomerSubmit: PropTypes.func,
   fields: PropTypes.array,
   remove: PropTypes.func,
-  setValue: PropTypes.func.isRequired,
   reset: PropTypes.func.isRequired,
 };

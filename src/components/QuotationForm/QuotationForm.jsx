@@ -61,37 +61,7 @@ const QuotationForm = ({ currentQuotation, onSave }) => {
     }
   }, [currentQuotation, setValue]);
 
-  const handleNewCustomerSubmit = async (data) => {
-    console.log('Attempting to create new customer:', data);
-    try {
-      const response = await fetch('https://techknow-backend.onrender.com/customers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const responseData = await response.json();
-      console.log('New customer created successfully:', responseData);
-      toast.success('New customer created successfully');
-      return responseData;
-    } catch (error) {
-      console.error('Error creating new customer:', error);
-      const errorMessage = error.response?.data?.message || 'Error creating new customer';
-      toast.error(errorMessage);
-      throw error;
-    }
-  };
-
   const handleReview = (data) => {
-    // if (!data.items || data.items.length === 0) {
-    //   toast.error('Please add at least one item');
-    //   return;
-    // }
-
     if (!data.customer_name?.trim()) {
       toast.error('Please enter a customer name');
       return;
@@ -134,7 +104,7 @@ const QuotationForm = ({ currentQuotation, onSave }) => {
         validity_period: formData.validity_period || 30
       };
 
-      const response = await fetch('https://techknow-backend.onrender.com/quotations', {
+      const response = await fetch('https://techknow-backend.onrender.com/quotations/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -188,7 +158,6 @@ const QuotationForm = ({ currentQuotation, onSave }) => {
       fields={fields}
       append={append}
       remove={remove}
-      handleNewCustomerSubmit={handleNewCustomerSubmit}
       showReview={showReview}
       formData={formData}
       handleConfirmSubmit={handleConfirmSubmit}

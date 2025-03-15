@@ -79,6 +79,29 @@ const QuotationList = () => {
       console.error(error);
     }
   };
+
+  const handleDelete = async (quotationId) => {
+    try {
+      const response = await fetch(`https://techknow-backend.onrender.com/quotations/${quotationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete quotation');
+      }
+
+      toast.success('Quotation deleted successfully');
+      loadQuotations();
+    } catch (error) {
+      toast.error(error.message || 'Failed to delete quotation');
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     loadQuotations();
   }, [loadQuotations]);
@@ -196,12 +219,19 @@ const QuotationList = () => {
                       Status: {q.status}
                     </span>
                   </div>
-                  <div className="w-full sm:w-auto">
+
+                  <div className="w-full sm:w-auto flex gap-2">
                     <button
                       onClick={() => handleSendEmail(q)}
                       className="w-full sm:w-auto inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
                     >
                       Download PDF
+                    </button>
+                    <button
+                      onClick={() => handleDelete(q.id)}
+                      className="w-full sm:w-auto inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200"
+                    >
+                      Delete
                     </button>
                   </div>
                 </div>
